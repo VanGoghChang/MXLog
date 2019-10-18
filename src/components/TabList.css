@@ -1,0 +1,24 @@
+.tab-list-container .close-icon {
+  visibility: hidden;
+}
+.tab-list-container .nav-link:hover .close-icon {
+  visibility: visible;
+}
+.tab-list-container .nav-link.active .close-icon {
+  visibility: visible;
+}
+.tab-list-container .unsave-icon {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  background-color: #d9534f;
+}
+.tab-list-container .is-unsave.nav-link .close-icon {
+  display: none;
+}
+.tab-list-container .is-unsave.nav-link:hover .close-icon {
+  display: inline-block;
+}
+.tab-list-container .is-unsave.nav-link:hover .unsave-icon {
+  display: none;
+}
