@@ -112,6 +112,15 @@ let template = [
         label: '视图',
         submenu: [
             {
+                label: '隐藏侧边栏',
+                accelerator: 'CmdOrCtrl+L',
+                accelerator: 'CmdOrCtrl+L',
+                click: function (item, focusedWindow) {
+                    if (focusedWindow)
+                        ipcMain.emit("left-bar-status")
+                }
+            },
+            {
                 label: '刷新',
                 accelerator: 'CmdOrCtrl+R',
                 accelerator: 'CmdOrCtrl+R',

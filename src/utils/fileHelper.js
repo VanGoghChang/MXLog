@@ -1,6 +1,9 @@
 const fsPromises = window.require('fs').promises
 
 const fileHelper = {
+    existsFile: (path) => {
+        return fsPromises.stat(path)
+    },
     readFile: (path) => {
         return fsPromises.readFile(path, { encoding: 'utf8'})
     },

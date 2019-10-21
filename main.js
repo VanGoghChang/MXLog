@@ -24,13 +24,20 @@ const createSQLManager = (path) => {
 app.on("ready", () => {
     const mainWindowConfig = {
         width: 1440,
-        height: 768
+        height: 870,
+        resizable: false
     }
     const urlLocation = isDev ? "http://localhost:3000" : `file://${path.join(__dirname, "./index.html")}`
     mainWindow = new AppWindow(mainWindowConfig, urlLocation)
     // mainWindow.webContents.openDevTools()
     mainWindow.on('closed', () => {
         mainWindow = null
+    })
+
+    mainWindow.on('resize', () => {
+        const windowSize = mainWindow.getBounds()
+        // console.log("windowSize_____:", windowSize)
+        // mainWindow.webContents.send("window-resize", { windowSize })
     })
 
     // Open setting window
@@ -51,6 +58,9 @@ app.on("ready", () => {
     let menu = Menu.buildFromTemplate(menuTemplate)
     Menu.setApplicationMenu(menu)
 
+    // Set left bar status
+    store.set("leftBar", "open")
+
     // Set cloud sync menu item status 
     ipcMain.on("config-is-saved", () => {
         let qiniuMenu = process.platform === "darwin" ? menu.items[3] : menu.items[2]
@@ -67,30 +77,75 @@ app.on("ready", () => {
         }
     })
 
+    ipcMain.on("left-bar-status", () => {
+        let qiniuMenu = process.platform === "darwin" ? menu.items[4] : menu.items[3]
+
+        if (store.get("leftBar") === "open") {
+            qiniuMenu.submenu.items[0].label = "开启侧边栏"
+            mainWindow.webContents.send("set-left-bar-status", { status: "close" })
+            store.set("leftBar", "close")
+            console.log("leftBar close")
+        } else {
+            qiniuMenu.submenu.items[0].label = "隐藏侧边栏"
+            mainWindow.webContents.send("set-left-bar-status", { status: "open" })
+            store.set("leftBar", "open")
+            console.log("leftBar open")
+        }
+    })
+
     // Download active file
     ipcMain.on("download-file", (event, data) => {
         setLoadingStatus(true)
-        const manager = createQiniuManager()
-        const sqlManager = createSQLManager()
         const { key, path, id } = data
+        const manager = createQiniuManager()
+        const sqlManager = createSQLManager(path)
+        manager.getFileInfoInCloud(key).then(res => {
+            manager.downloadFiles(key, path).then(() => {
+                sqlManager.getSQLFileContent()
+                    .then(content => {
+                        event.reply("read-file", { id, content })
+                        setLoadingStatus(false)
+                    }, error => {
+                        dialog.showErrorBox("数据解析失败", "请检查解析文件格式是否正确")
+                        setLoadingStatus(false)
+                    })
+                    .catch(error => {
+                        dialog.showErrorBox("数据解析失败", "请检查解析文件格式是否正确")
+                        setLoadingStatus(false)
+                    })
+
+            })
+        }, error => {
+            if (error.statusCode === 612) {
+                dialog.showErrorBox("线上文件失败", "请检查云端配置项是否正确")
+                setLoadingStatus(false)
+            }
+        }).catch(err => {
+            if (err) {
+                dialog.showErrorBox("线上文件失败", "请检查云端配置项是否正确")
+                setLoadingStatus(false)
+            }
+        })
+    })
+
+    // Read file
+    ipcMain.on("read-file", (event, data) => {
+        setLoadingStatus(true)
+        const { path, id } = data
+        const sqlManager = createSQLManager(path)
         sqlManager.getSQLFileContent()
-        // manager.getFileInfoInCloud(key).then(res => {
-        //     console.log("RES______:", res)
-        //     manager.downloadFiles(key, path).then(() => {
-        //         event.reply("file-downloaded", { status: "download-success", id })
-        //         setLoadingStatus(false)
-        //     })
-        // }, error => {
-        //     if (error.statusCode === 612) {
-        //         event.reply("file-downloaded", { status: "no-file", id })
-        //         setLoadingStatus(false)
-        //     }
-        // }).catch(err => {
-        //     if (err) {
-        //         event.reply("file-downloaded", { status: "download-error", id })
-        //         setLoadingStatus(false)
-        //     }
-        // })
+            .then(content => {
+                event.reply("read-file", { id, content })
+                setLoadingStatus(false)
+            }, error => {
+                dialog.showErrorBox("数据解析失败", "请检查解析文件格式是否正确")
+                setLoadingStatus(false)
+            })
+            .catch(error => {
+                dialog.showErrorBox("数据解析失败", "请检查解析文件格式是否正确")
+                setLoadingStatus(false)
+            })
+
     })
 
     // Delete file
