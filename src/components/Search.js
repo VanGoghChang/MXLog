@@ -4,6 +4,8 @@ import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons"
 import PropTypes from "prop-types"
 import useKeyPress from "../hooks/useKeyPress"
 
+const { remote, ipcRenderer } = window.require('electron')
+
 const Search = ({ title, onSearch, onSearchClose }) => {
     const [inputActive, setInputActive] = useState(false)
     const [value, setValue] = useState("")

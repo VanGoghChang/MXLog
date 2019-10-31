@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import uuidv4 from 'uuid/v4'
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "easymde/dist/easymde.min.css"
 import Search from './components/Search'
 import List from './components/List'
 import Table from './components/Table'
+import Progress from './components/Progress'
+import classNames from "classnames"
 import BottomButton from './components/BottomButton'
-import { flattenArray, objectToArray, filterLog, stringSerialize } from './utils/helper'
+import { objectToArray, filterLog, stringSerialize } from './utils/helper'
 import fileHelper from './utils/fileHelper'
 import useIpcRenderer from "./hooks/useIpcRenderer"
 import Loader from './components/Loader'
@@ -40,7 +41,7 @@ const filesConfigSerialize = (data) => {
       id: Path.basename(key, ".db"),
       key,
       putTime,
-      path: `${store.get("savedFileLocation")}/${key}`
+      path: `${store.get("savedFileLocation") || remote.app.getPath('documents')}/${key}`
     }
     return result
   }, {})
@@ -53,8 +54,15 @@ function App() {
   const [content, setContent] = useState([])
   const [leftBar, setLeftBar] = useState(store.get("leftBar") || "")
   const [detailBar, setDetailBar] = useState("close")
+  const [detailBarHeight, setDetailBarHeight] = useState(840)
   const [detailData, setDetailData] = useState("")
-  // const [tableHeight, setTableHeight] = useState(768)
+  const [progress, setProgress] = useState(false)
+  const [tableHeight, setTableHeight] = useState(780)
+
+  const rClassName = classNames({
+    "col-9 right-panel": leftBar === "open",
+    "col-12 right-panel": leftBar === "close",
+  })
 
   const filesListSource = objectToArray(files)
 
@@ -62,7 +70,7 @@ function App() {
 
   const fileClick = (id) => {
     const activeFile = files[id]
-    console.log()
+    setTableHeight(remote.getCurrentWindow().getSize()[1])
     const { path, key } = activeFile
     fileHelper.existsFile(path)
       .then(stats => {
@@ -85,7 +93,7 @@ function App() {
   }
 
   const searchFiles = (keywords) => {
-    console.log("search________start")
+    console.log("search_start")
     ipcRenderer.send("search-files", { keywords })
   }
 
@@ -125,7 +133,6 @@ function App() {
 
   const filesSearched = (event, message) => {
     const newFiles = filesConfigSerialize(filterLog(message))
-    console.log("search newFiles____:", newFiles)
     setFiles(newFiles)
     saveFilesToStore(newFiles)
   }
@@ -133,13 +140,18 @@ function App() {
   const fileRead = (event, message) => {
     const { content, id } = message
     setActive(id)
-    console.log("Content______: ", content)
     setContent(content)
   }
 
   const windowResize = (event, message) => {
-
+    setTableHeight(message.windowHeight)
   }
+
+  const downloadProgress = (event, message) => {
+    console.log("download-message:", message.progress)
+    setProgress(message.progress)
+  }
+  
 
   useIpcRenderer({
     // 'import-file': importFiles,
@@ -148,10 +160,10 @@ function App() {
     'read-file': fileRead,
     'set-left-bar-status': (event, message) => { setLeftBar(message.status) },
     'loading-status': (event, message) => { setLoading(message) },
-    'window-resize': windowResize
+    'window-resize': windowResize,
+    'download-progress': downloadProgress
   })
 
-  console.log("detailBar_____:", remote.getCurrentWindow())
   return (
     <div className="app container-fluid px-0">
       <div className="row no-gutters">
@@ -182,7 +194,7 @@ function App() {
             </div> */}
           </div>
         }
-        <div className="col-9 right-panel">
+        <div className={rClassName}>
           {
             !isActive && <div className="block-page">
               选择或者导入 log 文件
@@ -191,13 +203,14 @@ function App() {
           {
             isActive &&
             <>
-              <Search
+              {/* <Search
                 title="搜索关键时间或关键字"
                 onSearch={() => {}}
                 onSearchClose={() => { console.log("search close") }}
-              />
+              /> */}
               <Table
                 titles={["时间", "类型", "内容"]}
+                tableHeight={tableHeight}
                 dataSource={content}
                 itemOnClick={(id, data) => {
                   setDetailData(data)
@@ -205,6 +218,7 @@ function App() {
                     setDetailBar("close")
                   } else {
                     setDetailBar(id)
+                    setDetailBarHeight(remote.getCurrentWindow().getSize()[1])
                   }
                 }}
               />
@@ -214,14 +228,15 @@ function App() {
         {detailBar === "close" && null}
         {
           detailBar !== "close" &&
-          <div className="detail-bar">
-            <SyntaxHighlighter language="javascript" style={docco}>
+          <div className="detail-bar" style={{ height: `${detailBarHeight - 22}px`}}>
+            <SyntaxHighlighter language="javascript" style={dracula}>
               {stringSerialize(detailData)}
             </SyntaxHighlighter>
           </div>
         }
       </div>
       {loading ? <Loader /> : null}
+      {progress? <Progress percent={progress}/>: null}
     </div>
   );
 }

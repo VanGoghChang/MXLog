@@ -2,10 +2,8 @@ import React from "react"
 import PropTypes from "prop-types"
 import classNames from "classnames"
 import { timeStampSerialize } from "../utils/helper"
-import { faDivide } from "@fortawesome/free-solid-svg-icons"
 
-const Table = ({ titles, dataSource, itemOnClick }) => {
-
+const Table = ({ titles, dataSource, tableHeight, itemOnClick }) => {
     const createTableContent = () => {
         return (
             dataSource.map((item, index) => {
@@ -13,7 +11,7 @@ const Table = ({ titles, dataSource, itemOnClick }) => {
                     "table-danger": item.Type === "app_start",
                 })
                 return (
-                    <tr className={fClassName} key={index} onClick={() => { itemOnClick(index, item.Content) }}>
+                    <tr key={index} onClick={() => { itemOnClick(index, item.Content) }}>
                         <td>{timeStampSerialize(item.TimeStamp)}</td>
                         <td>{item.Type}</td>
                         <td>{item.Content}</td>
@@ -24,7 +22,7 @@ const Table = ({ titles, dataSource, itemOnClick }) => {
     }
 
     return (
-        <div className="table-responsive">
+        <div className="table-responsive" style={{ height: tableHeight-22 }}>
             <table className="table table-hover">
                 <thead>
                     <tr>
@@ -39,7 +37,7 @@ const Table = ({ titles, dataSource, itemOnClick }) => {
                     {createTableContent()}
                 </tbody>
             </table>
-        </div>    
+        // </div>    
     )
 }
 

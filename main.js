@@ -23,6 +23,15 @@ const createSQLManager = (path) => {
 }
 
 app.on("ready", () => {
+    const mainWindowConfig = {
+        width: 1440,
+        height: 870,
+        // resizable: false
+    }
+    this.preWindowSize = { ...mainWindowConfig }
+    const urlLocation = isDev ? "http://localhost:3000" : `file://${path.join(__dirname, "./index.html")}`
+    mainWindow = new AppWindow(mainWindowConfig, urlLocation)
+
     if (isDev) {
         autoUpdater.updateConfigPath = path.join(__dirname, 'dev-app-update.yml')
     }
@@ -50,10 +59,10 @@ app.on("ready", () => {
     })
 
     autoUpdater.on('update-not-available', () => {
-        dialog.showMessageBox({
-            title: '没有新版本',
-            message: '当前已经是最新版本'
-        })
+        // dialog.showMessageBox({
+        //     title: '没有新版本',
+        //     message: '当前已经是最新版本'
+        // })
     })
 
     autoUpdater.on('download-progress', (progressObj) => {
@@ -61,6 +70,7 @@ app.on("ready", () => {
         log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
         log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
         console.log(log_message)
+        mainWindow.webContents.send("download-progress", { progress: Math.ceil(progressObj.percent) })
     })
 
     autoUpdater.on('update-downloaded', () => {
@@ -72,22 +82,29 @@ app.on("ready", () => {
         })
     })
 
-    const mainWindowConfig = {
-        width: 1440,
-        height: 870,
-        resizable: false
-    }
-    const urlLocation = isDev ? "http://localhost:3000" : `file://${path.join(__dirname, "./index.html")}`
-    mainWindow = new AppWindow(mainWindowConfig, urlLocation)
     // mainWindow.webContents.openDevTools()
     mainWindow.on('closed', () => {
-        mainWindow = null
+        mainWindow = nullc
     })
 
     mainWindow.on('resize', () => {
         const windowSize = mainWindow.getBounds()
         // console.log("windowSize_____:", windowSize)
-        // mainWindow.webContents.send("window-resize", { windowSize })
+        mainWindow.webContents.send("window-resize", { windowHeight: windowSize.height })
+        
+        // const compareWindowSize = setInterval(() => {
+        //     const equalSize = windowSize.height === this.preWindowSize.height
+        //     console.log("equalSize value:", equalSize, this.preWindowSize.height, windowSize.height)
+        //     if(equalSize){
+        //         console.log("resize close~~")
+        //         clearInterval(compareWindowSize)
+        //         mainWindow.webContents.send("window-resize", { windowSize })
+        //     }else{
+        //         console.log("this.preWindowSize: ", this.preWindowSize)
+        //         this.preWindowSize.height = windowSize.height
+        //     }
+        // }, 100)
+        
     })
 
     // Open setting window
@@ -97,7 +114,7 @@ app.on("ready", () => {
             height: 500,
             parent: mainWindow
         }
-        const settingsFileLocation = `file://${path.join(__dirname, './settings/settings.html')}`
+        const settingsFileLocation = isDev ? `file://${path.join(__dirname, './settings/settings.html')}`: `file://${path.join(__dirname, '../settings/settings.html')}`
         settingsWindow = new AppWindow(settingsWindowConfig, settingsFileLocation)
         // settingsWindow.webContents.openDevTools()
         settingsWindow.on('closed', () => {
@@ -221,13 +238,13 @@ app.on("ready", () => {
 
     // Search online files
     ipcMain.on("search-files", (event, data) => {
-        setLoadingStatus(true)
+        // setLoadingStatus(true)
         const manager = createQiniuManager()
         if (manager) {
             manager.getTargetListToCloud(data.keywords)
                 .then(res => {
                     if (res && res.items) {
-                        setLoadingStatus(false)
+                        // setLoadingStatus(false)
                         if (res.items.length === 0) {
                             dialog.showMessageBox({
                                 type: "info",
@@ -239,11 +256,11 @@ app.on("ready", () => {
                         }
                     }
                 }, error => {
-                    setLoadingStatus(false)
+                    // setLoadingStatus(false)
                     dialog.showErrorBox("连接云端搜索失败", "请检查云端配置项是否正确")
                 })
                 .catch(error => {
-                    setLoadingStatus(false)
+                    // setLoadingStatus(false)
                     dialog.showErrorBox("连接云端搜索失败", "请检查云端配置项是否正确")
                 })
         }

@@ -3,16 +3,37 @@ import PropTypes from "prop-types"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faFileAlt } from "@fortawesome/free-solid-svg-icons"
 import { findParentNode } from "../utils/helper"
+import fileHelper from "../utils/fileHelper"
 import useContextMenu from "../hooks/useContextMenu"
+
+const { shell, remote } = window.require('electron')
+const Store = window.require('electron-store')
+const store = new Store()
 
 const List = ({ files, onFileClick }) => {
     const clickedItem = useContextMenu([
         {
-            label: "open",
+            label: "Open",
             click: () => {
                 const targetNode = findParentNode(clickedItem.current, "list-group-item")
                 if (targetNode) {
                     onFileClick(targetNode.dataset.id)
+                }
+            }
+        },
+        {
+            label: "Show in Finder",
+            click: () => {
+                const targetNode = findParentNode(clickedItem.current, "list-group-item")
+                if (targetNode) {
+                    console.log(targetNode.dataset.id)
+                    const path = `${store.get("savedFileLocation") || remote.app.getPath('documents')}/${targetNode.dataset.id}.db`
+                    fileHelper.existsFile(path)
+                        .then(stats => {
+                            const openFile = shell.showItemInFolder(path)
+                        }, error => {
+                            remote.dialog.showErrorBox("文件打开失败", "本地文件未找到，请检查文件路径")
+                        })
                 }
             }
         }

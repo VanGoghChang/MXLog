@@ -10,5 +10,8 @@ module.exports = {
     },
     node: {
         __dirname: false
+    },
+    externals: {
+        sqlite3: 'commonjs2 sqlite3',
     }
 }

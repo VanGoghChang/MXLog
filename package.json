@@ -1,12 +1,12 @@
 {
   "name": "mx-log",
-  "version": "1.0.1",
+  "version": "1.0.7",
   "main": "main.js",
   "description": "Online editor",
   "author": {
     "name": "VanGoghChang"
   },
-  "repository": "https://github.com/VanGoghChang/react-electron-md-edit",
+  "repository": "https://github.com/VanGoghChang/MXLog.git",
   "private": true,
   "dependencies": {
     "electron-store": "^4.0.0",
@@ -23,15 +23,15 @@
     "dev": "concurrently \"wait-on http://localhost:3000 && electron .\" \"cross-env BROWSER=none npm run start \"",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "release": "cross-env GH_TOKEN=63daa0c3b1bed6e16a9a5faef63d3e93764247cb && electron-builder",
+    "release": "cross-env DEBUG=electron-builder GH_TOKEN=9a605d87ccc0fcb2caf7fef4215b2c7856a31986 electron-builder",
     "prerelease": "npm run build && npm run build-main",
     "prepack": "npm run build && npm run build-main",
     "predist": "npm run build && npm run build-main"
   },
   "homepage": "./",
   "build": {
-    "appId": "cloudLog",
-    "productName": "Editor",
+    "appId": "MXLog",
+    "productName": "MXLog Viewer",
     "copyright": "Copyright © 2019 ${author}",
     "files": [
       "main.js",

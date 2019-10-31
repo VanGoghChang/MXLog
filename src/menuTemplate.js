@@ -8,20 +8,20 @@ let template = [
     {
         label: '文件',
         submenu: [
-            {
-                label: '新建',
-                accelerator: 'CmdOrCtrl+N',
-                click: (menuItem, browserWindow, event) => {
-                    browserWindow.webContents.send('create-file')
-                }
-            },
-            {
-                label: '保存',
-                accelerator: 'CmdOrCtrl+S',
-                click: (menuItem, browserWindow, event) => {
-                    browserWindow.webContents.send('save-file')
-                }
-            },
+            // {
+            //     label: '新建',
+            //     accelerator: 'CmdOrCtrl+N',
+            //     click: (menuItem, browserWindow, event) => {
+            //         browserWindow.webContents.send('create-file')
+            //     }
+            // },
+            // {
+            //     label: '保存',
+            //     accelerator: 'CmdOrCtrl+S',
+            //     click: (menuItem, browserWindow, event) => {
+            //         browserWindow.webContents.send('save-file')
+            //     }
+            // },
             {
                 label: '搜索',
                 accelerator: 'CmdOrCtrl+F',
@@ -29,13 +29,13 @@ let template = [
                     browserWindow.webContents.send('search-file')
                 }
             },
-            {
-                label: '导入',
-                accelerator: 'CmdOrCtrl+O',
-                click: (menuItem, browserWindow, event) => {
-                    browserWindow.webContents.send('import-file')
-                }
-            },
+            // {
+            //     label: '导入',
+            //     accelerator: 'CmdOrCtrl+O',
+            //     click: (menuItem, browserWindow, event) => {
+            //         browserWindow.webContents.send('import-file')
+            //     }
+            // },
         ]
     },
     {
@@ -83,29 +83,29 @@ let template = [
                     ipcMain.emit('open-settings-window')
                 }
             },
-            {
-                label: "自动同步",
-                type: "checkbox",
-                enabled: qiniuConfig,
-                checked: autoSyncToCloud,
-                click: (menuItem, browserWindow, event) => {
-                    store.set({"autoSyncToCloud": !autoSyncToCloud})
-                }
-            },
-            {
-                label: "全部同步至云端",
-                enabled: qiniuConfig,
-                click: (menuItem, browserWindow, event) => {
-                    ipcMain.emit('all-files-upload')
-                }
-            },
-            {
-                label: "从云端下载到本地",
-                enabled: qiniuConfig,
-                click: (menuItem, browserWindow, event) => {
+            // {
+            //     label: "自动同步",
+            //     type: "checkbox",
+            //     enabled: qiniuConfig,
+            //     checked: autoSyncToCloud,
+            //     click: (menuItem, browserWindow, event) => {
+            //         store.set({"autoSyncToCloud": !autoSyncToCloud})
+            //     }
+            // },
+            // {
+            //     label: "全部同步至云端",
+            //     enabled: qiniuConfig,
+            //     click: (menuItem, browserWindow, event) => {
+            //         ipcMain.emit('all-files-upload')
+            //     }
+            // },
+            // {
+            //     label: "从云端下载到本地",
+            //     enabled: qiniuConfig,
+            //     click: (menuItem, browserWindow, event) => {
                     
-                }
-            },
+            //     }
+            // },
         ]
     },
     {

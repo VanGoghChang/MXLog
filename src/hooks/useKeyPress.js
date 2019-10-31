@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react"
 
+global.keyDownTimeStamp = 0
 const useKeyPress = (targetKeyCode) => {
     const [keyPressed, setKeyPressed] = useState(false)
 
     const keyDownHandler = ({ keyCode }) => {
-        console.log("keyDownHandler_____")
-        if(keyCode === targetKeyCode) {
+        if ((keyCode === targetKeyCode)) {
+            console.log("keyDownHandler_____")
             setKeyPressed(true)
         }
     }
 
     const keyUpHandler = ({ keyCode }) => {
-        if(keyCode === targetKeyCode) {
+        console.log("keyUpHandler_____")
+        if ((keyCode === targetKeyCode)) {
             setKeyPressed(false)
         }
     }
@@ -19,12 +21,11 @@ const useKeyPress = (targetKeyCode) => {
     useEffect(() => {
         document.addEventListener("keydown", keyDownHandler)
         document.addEventListener("keyup", keyUpHandler)
-        return ()=> {
+        return () => {
             document.removeEventListener("keydown", keyDownHandler)
             document.removeEventListener("keyup", keyUpHandler)
         }
     }, [])
-
     return keyPressed
 }
 
