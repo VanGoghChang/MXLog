@@ -1,6 +1,6 @@
 {
   "name": "mx-log",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "main": "main.js",
   "description": "Online editor",
   "author": {
@@ -23,7 +23,7 @@
     "dev": "concurrently \"wait-on http://localhost:3000 && electron .\" \"cross-env BROWSER=none npm run start \"",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "release": "cross-env DEBUG=electron-builder GH_TOKEN=9a605d87ccc0fcb2caf7fef4215b2c7856a31986 electron-builder",
+    "release": "cross-env DEBUG=electron-builder GH_TOKEN=600acfeeaf65d734647b83de6e5243d696208efa electron-builder",
     "prerelease": "npm run build && npm run build-main",
     "prepack": "npm run build && npm run build-main",
     "predist": "npm run build && npm run build-main"

@@ -84,7 +84,7 @@ app.on("ready", () => {
 
     // mainWindow.webContents.openDevTools()
     mainWindow.on('closed', () => {
-        mainWindow = nullc
+        mainWindow = null
     })
 
     mainWindow.on('resize', () => {
@@ -131,17 +131,17 @@ app.on("ready", () => {
     // Set cloud sync menu item status 
     ipcMain.on("config-is-saved", () => {
         let qiniuMenu = process.platform === "darwin" ? menu.items[3] : menu.items[2]
-        const switchItems = (toggle) => {
-            [1, 2, 3].map(key => {
-                qiniuMenu.submenu.items[key].enabled = toggle
-            })
-        }
+        // const switchItems = (toggle) => {
+        //     [1, 2, 3].map(key => {   
+        //         qiniuMenu.submenu.items[key].enabled = toggle
+        //     })
+        // }
         const qiniuConfig = ["accessKey", "secretKey", "bucketName"].every(key => !!store.get(key))
-        if (qiniuConfig) {
-            switchItems(true)
-        } else {
-            switchItems(false)
-        }
+        // if (qiniuConfig) {
+        //     switchItems(true)
+        // } else {
+        //     switchItems(false)
+        // }
     })
 
     ipcMain.on("left-bar-status", () => {
